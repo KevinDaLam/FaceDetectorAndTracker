@@ -21,32 +21,39 @@ arduinoCom = serial.Serial(CONST_COMNUM, CONST_baudRate)
 
 def main():
 
+    #Initialize Webcam
     capture = cv2.VideoCapture(2)
-    cenX = 0
-    cenY = 0
-
+    
+    #Error Check for Opened Webcam
     if capture.isOpened() == False:
         print "Error: Webcam was not detected or accessed properly.\n\n"
         os.system("pause")
         return
 
-
+    #Create Window to Display Video Feed
     cv2.namedWindow("Face Detection", cv2.WINDOW_AUTOSIZE)
 
+    #Face Recognition Application Runs Until for ESC Key is Pressed or Error in Video Feed
     while cv2.waitKey(1) != 27 and capture.isOpened():
+        
+        #Capture Still Image Feed
         blnSuccess, imgCapture = capture.read()
 
+        #Error Check for Capture Still
         if not blnSuccess or imgCapture is None:
             print "Error: Frame not read from Webcam. \n"
             os.system("pause")
             break
-
+        
+        #Convert Camera Still to Grayscale
         imgGrayScale = cv2.cvtColor(imgCapture, cv2.COLOR_BGR2GRAY)
 
+        #Apply Face Cascade Classifier
         faces = faceCascade.detectMultiScale(imgGrayScale, 1.2, 5, minSize=(30,30), flags = cv2.cv.CV_HAAR_FIND_BIGGEST_OBJECT)
 
         print "Found {0} face(s)!".format(len(faces))
 
+        #Draws Rectangles Around Recognized Faces and Sends Coordinates to Serial
         for (x,y,w,h) in faces:
             cv2.rectangle(imgCapture, (x,y), (x+w,y+h), (0,255,0), 2)
             faceGray = imgGrayScale[y:y+h, x:x+w]
